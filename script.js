@@ -83,7 +83,13 @@ rsvpButtons.forEach(btn => {
     };
 
     try {
-      if (RSVP_ENDPOINT) {
+      // Tokens starting with "test-" are dry-run: UI flows, but nothing
+      // is sent to the sheet. Useful for previewing the card.
+      const isTest = token.startsWith("test-");
+      if (isTest) {
+        console.log("[RSVP] dry-run (test token)", payload);
+        await new Promise(r => setTimeout(r, 600));
+      } else if (RSVP_ENDPOINT) {
         // text/plain avoids a CORS preflight that Apps Script can't handle.
         const res = await fetch(RSVP_ENDPOINT, {
           method:   "POST",
