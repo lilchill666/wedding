@@ -14,8 +14,8 @@
 
 <div class="splash" id="splash">
   <div class="splash-photo">
-    <img src="couple.png" alt="" onerror="if(this.src.endsWith('.png')){this.src='couple.jpg'}else{this.remove()}">
     <div class="splash-fallback">А<span>&amp;</span>Я</div>
+    <img src="couple.png" alt="" data-fallback="couple.jpg,couple.jpeg" onerror="const q=(this.dataset.fallback||'').split(',').filter(Boolean);if(q.length){this.dataset.fallback=q.slice(1).join(',');this.src=q[0]}else{this.remove()}">
   </div>
   <div class="splash-caption">Анастасія <em>&amp;</em> Ярослав</div>
   <div class="splash-date">27 · 06 · 2026</div>
@@ -25,7 +25,7 @@
 
   <section class="screen-1 snap">
     <div class="hero-image">
-      <img src="hero.jpg" alt="" onerror="this.remove()">
+      <img src="hero.jpg" alt="" data-fallback="hero.jpeg,hero.png" onerror="const q=(this.dataset.fallback||'').split(',').filter(Boolean);if(q.length){this.dataset.fallback=q.slice(1).join(',');this.src=q[0]}else{this.remove()}">
       <div class="hero-image-fallback"></div>
     </div>
     <div class="hero-text">
@@ -69,7 +69,7 @@
 
       <article class="block">
         <h2>Додаткова інформація</h2>
-        <p>На святі для вас працюватимуть:<br>фотограф 📸, відеограф 🎥, ведучий 🎤, діджей 🎶 та бар 🍸</p>
+        <p>На святі для вас працюватимуть:<br>фотограф, відеограф, ведучий, діджей та бар</p>
         <p class="muted">Для безпеки гостей у закладі облаштовані укриття.</p>
       </article>
 
@@ -85,12 +85,7 @@
 
       <article class="block">
         <h2>💍 Важливе прохання</h2>
-        <p>Просимо утриматись від організації пропозицій руки і серця та інших подій у цей день — нехай він залишиться нашим особливим моментом 🙏</p>
-      </article>
-
-      <article class="block vip" data-vip>
-        <h2>Для іногородніх гостей</h2>
-        <p>Ми з радістю подбаємо про ваш комфорт: проживання в готелі та трансфер (готель ⇄ місце святкування) — за наш рахунок 🤍</p>
+        <p>Просимо утриматись від організації пропозицій руки і серця та інших подій у цей день — нехай він залишиться нашим особливим моментом</p>
       </article>
 
       <article class="block vip" data-vip>

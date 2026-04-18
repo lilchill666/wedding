@@ -1,26 +1,35 @@
 // ============================================================
-// Guest list. Add tokens here — each token unlocks VIP sections
-// (hotel/taxi + RSVP buttons) and ties replies to a name.
-// Share link: https://your-site/?g=TOKEN
-// ============================================================
-const GUESTS = {
-  // "olena2026":  "Олена Коваленко",
-  // "petro2026":  "Петро Шевчук",
-  // "family-ivanov": "Родина Іванових",
-};
-
-// Cloudflare Worker URL (see worker.js). Leave empty during local testing.
-const RSVP_ENDPOINT = "";
-
+// Guests are defined in /guests.json (plain `id → name` map).
+// Invite link:  https://your-site/?g=ID
+//
+// Only guests whose id is in guests.json see the RSVP buttons.
+//
+// Backend:  Google Apps Script bound to a Google Sheet (see
+//           backend.gs). Paste the deployed /exec URL below.
 // ============================================================
 
-const params = new URLSearchParams(location.search);
-const token = (params.get("g") || params.get("guest") || "").trim();
-const guestName = GUESTS[token] || null;
+const RSVP_ENDPOINT = "https://script.google.com/macros/s/AKfycbwIYJNTQgkiaohunv2CyANHW4CJOembLhj-jBfe80Yut9PeA6q-jvL2WsFL0v-IAqAaOw/exec"
 
-if (guestName) {
-  document.querySelectorAll("[data-vip]").forEach(el => el.classList.add("show"));
-}
+// ------------------------------------------------------------
+
+const params    = new URLSearchParams(location.search);
+const token     = (params.get("g") || params.get("guest") || "").trim();
+let   guestName = null;
+
+(async function loadGuest() {
+  if (!token) return;
+  try {
+    const res = await fetch("guests.json", { cache: "no-cache" });
+    if (!res.ok) return;
+    const guests = await res.json();
+    guestName = guests[token] || null;
+    if (guestName) {
+      document.querySelectorAll("[data-vip]").forEach(el => el.classList.add("show"));
+    }
+  } catch (e) {
+    console.warn("guests.json load failed:", e);
+  }
+})();
 
 // ---------- Splash ----------
 const splash = document.getElementById("splash");
@@ -34,7 +43,7 @@ splash.addEventListener("click", hideSplash);
 // to its top. So: snap is active while they're on screen 1, released once
 // they've reached screen 2, and restored if they scroll back up.
 const scroller = document.getElementById("scroller");
-const hint = document.getElementById("scrollHint");
+const hint     = document.getElementById("scrollHint");
 
 let snapReleased = false;
 const updateSnap = () => {
@@ -55,19 +64,19 @@ scroller.addEventListener("scroll", () => {
 }, { passive: true });
 
 // ---------- RSVP ----------
-const status = document.getElementById("rsvp-status");
+const status      = document.getElementById("rsvp-status");
 const rsvpButtons = document.querySelectorAll("[data-rsvp]");
 
 rsvpButtons.forEach(btn => {
   btn.addEventListener("click", async () => {
     const answer = btn.dataset.rsvp;
     rsvpButtons.forEach(b => b.disabled = true);
-    status.className = "rsvp-status";
+    status.className   = "rsvp-status";
     status.textContent = "Надсилаємо...";
 
     const payload = {
-      guest: guestName || "Гість",
-      token: token || "—",
+      guest:     guestName || "Гість",
+      token:     token     || "—",
       answer,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
@@ -75,10 +84,12 @@ rsvpButtons.forEach(btn => {
 
     try {
       if (RSVP_ENDPOINT) {
+        // text/plain avoids a CORS preflight that Apps Script can't handle.
         const res = await fetch(RSVP_ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          method:   "POST",
+          headers:  { "Content-Type": "text/plain;charset=utf-8" },
+          body:     JSON.stringify(payload),
+          redirect: "follow",
         });
         if (!res.ok) throw new Error("network");
       } else {

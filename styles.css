@@ -63,9 +63,11 @@ img { display: block; max-width: 100%; }
   animation: riseIn 1.1s 0.1s ease-out forwards;
 }
 .splash-photo img {
+  position: relative;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  z-index: 1;
 }
 .splash-fallback {
   position: absolute;
