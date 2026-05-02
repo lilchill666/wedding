@@ -25,6 +25,12 @@ let   guestName = null;
     guestName = guests[token] || null;
     if (guestName) {
       document.querySelectorAll("[data-vip]").forEach(el => el.classList.add("show"));
+      // Later-deadline guests
+      const LATE_DEADLINE = new Set(["efnjfjefe-17", "qmkknqne-18"]);
+      if (LATE_DEADLINE.has(token)) {
+        const el = document.getElementById("rsvp-deadline");
+        if (el) el.textContent = "10.05.2026";
+      }
     }
   } catch (e) {
     console.warn("guests.json load failed:", e);
